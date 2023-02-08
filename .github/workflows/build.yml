@@ -1,0 +1,75 @@
+# This is a basic workflow to help you get started with Actions
+
+name: build
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          tag_name: ${{ github.run_id }}
+          release_name: Release ${{ github.run_id }}
+          draft: false
+          prerelease: false
+
+
+      - name: Upload Release linux Asset
+        id: upload-release-linux-asset
+        uses: actions/upload-release-asset@master
+        env:
+         GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+         upload_url: ${{ steps.create_release.outputs.upload_url }}
+         asset_path: ./ffmpeg-linux.zip
+         asset_name:  ffmpeg-linux.zip
+         asset_content_type: application/zip
+         
+      - name: Upload Release window Asset
+        id: upload-release-window-asset
+        uses: actions/upload-release-asset@master
+        env:
+         GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+         upload_url: ${{ steps.create_release.outputs.upload_url }}
+         asset_path: ./ffmpeg-win.zip
+         asset_name:  ffmpeg-win.zip
+         asset_content_type: application/zip
+         
+      - name: Upload Release Darwin Asset
+        id: upload-release-darwin-asset
+        uses: actions/upload-release-asset@master
+        env:
+         GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+         upload_url: ${{ steps.create_release.outputs.upload_url }}
+         asset_path: ./ffmpeg-darwin.zip
+         asset_name:  ffmpeg-darwin.zip
+         asset_content_type: application/zip
+ 
+    
+
+      
